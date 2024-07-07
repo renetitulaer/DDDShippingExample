@@ -1,5 +1,6 @@
 ﻿using Domain.Aggrgates.CargoAggregate;
 using Domain.Aggrgates.CarrierMovementAggregate;
+using Domain.Persistency;
 using Domain.SeedWork;
 using System;
 using System.Collections.Generic;
@@ -12,41 +13,40 @@ namespace Domain.Aggrgates.HandlingIncidentAggregate
     public class HandlingEvent 
         : RootEntity
     {
-        private readonly int _handlingIncidentId;
-        private readonly HandlingEvenType _type;
+        internal IShippingDbContext? ShippingDbContext { get; set; }
+
+        private readonly HandlingEventType _type;
         private readonly DateTime _timeStamp;
         private readonly CarrierMovement? _loadedOnto;
-        private readonly Cargo _loaded;
+        private readonly int _trackingId;
 
-        public int HandlingIncidentId => _handlingIncidentId;
         public DateTime TimeStamp => _timeStamp;
-        public HandlingEvenType Type => _type;
+        public HandlingEventType Type => _type;
         public CarrierMovement? LoadedOnto => _loadedOnto;
-        public Cargo Loaded => _loaded;
+        public Cargo Loaded => ShippingDbContext!.Cargos.Single(c => c.TrackingId == _trackingId);
+        public int TrackingId => _trackingId;
 
-        public HandlingEvent(Cargo loaded, CarrierMovement? loadedOnto, 
-            DateTime timeStamp, HandlingEvenType type)
+        // Needed for EF
+        private HandlingEvent() {}
+
+        internal HandlingEvent(Cargo loaded, CarrierMovement? loadedOnto, 
+            DateTime timeStamp, HandlingEventType type)
         {
-            _handlingIncidentId = CreateId();
-            _loaded = loaded;
+            _trackingId = loaded.TrackingId;
             _loadedOnto = loadedOnto;
             _timeStamp = timeStamp;
             _type = type;
         }
 
-        public HandlingEvent(Cargo cargo, DateTime timeStamp, HandlingEvenType type) 
+        public HandlingEvent(Cargo cargo, DateTime timeStamp, HandlingEventType type) 
             : this(cargo, null, timeStamp, type)
         {
         }
 
         public void Load(CarrierMovement carrierMovement)
         {
-            carrierMovement.LoadOnto(carrierMovement.FromLocation, carrierMovement.ToLocation);
-        }
-
-        private int CreateId()
-        {
-            return new Random().Next();
+            carrierMovement.LoadOnto(carrierMovement.FromLocation, carrierMovement.ToLocation
+                                                                 );
         }
     }
 }

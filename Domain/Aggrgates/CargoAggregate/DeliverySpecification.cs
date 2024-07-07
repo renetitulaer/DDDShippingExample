@@ -15,6 +15,9 @@ namespace Domain.Aggrgates.CargoAggregate
     /// <param name="destinationId"></param>
     public class DeliverySpecification(DateTime arrivelTime, int destinationId) : ValueObject
     {
+        // Needed for EF
+        private DeliverySpecification() : this(DateTime.MinValue, 0) {}
+
         private readonly DateTime _arrivelTime = arrivelTime;
         private readonly int _destinationId = destinationId;
         public DateTime ArrivelTime => _arrivelTime;

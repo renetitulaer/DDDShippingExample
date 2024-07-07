@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Aggrgates.HandlingIncidentAggregate
 {
-    public enum HandlingEvenType
+    public enum HandlingEventType
     {
         Load,
         Unload,
